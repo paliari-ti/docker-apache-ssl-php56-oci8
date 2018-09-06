@@ -26,6 +26,7 @@ RUN apt-get update && \
   libaio-dev \
   git \
   curl \
+  wget \
   vim \
   && apt-get clean -y && \
   curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer \
@@ -48,8 +49,9 @@ RUN sed -i "s#short_open_tag = Off#short_open_tag = On#" /etc/php/5.6/apache2/ph
   a2ensite default-ssl && \
   chown -R www-data:www-data /var/www/html
 
-ADD instantclient.x64-12.1.0.2.0.zip /tmp/
-RUN unzip /tmp/instantclient.x64-12.1.0.2.0.zip -d /usr/local/ && \
+RUN wget -O /tmp/instantclient.x64-12.1.0.2.0.zip https://github.com/paliari-ti/docker-apache-ssl-php56-oci8/raw/master/instantclient.x64-12.1.0.2.0.zip && \
+  unzip /tmp/instantclient.x64-12.1.0.2.0.zip -d /usr/local/ && \
+  rm -f /tmp/instantclient.x64-12.1.0.2.0.zip && \
   ln -s /usr/local/instantclient_12_1 /usr/local/instantclient && \
   ln -s /usr/local/instantclient/libclntsh.so.12.1 /usr/local/instantclient/libclntsh.so && \
   ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus && \
