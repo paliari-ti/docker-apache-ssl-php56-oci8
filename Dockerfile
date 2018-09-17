@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 LABEL Mantainer="Marcos Paliari <marcos@paliari.com.br>"
 LABEL Description="A Simple apache-sll/php5.6/oci8 image using ubuntu:14.04"
@@ -28,8 +28,9 @@ RUN apt-get update && \
   curl \
   wget \
   vim \
+  cron \
   && apt-get clean -y && \
-  curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer \
+  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
   && mkdir -p /etc/apache2/ssl \
   && rm -rf /var/lib/apt/lists/*
 
