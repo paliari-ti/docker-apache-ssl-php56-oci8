@@ -10,4 +10,9 @@ if [ ! -z $DOCUMENT_ROOT ]; then
     echo 'Document root applied'
 fi;
 
+if [ -f "/root/crontab" ]; then
+  crontab /root/crontab
+  service cron start
+fi;
+
 source /etc/apache2/envvars && exec /usr/sbin/apache2 -DFOREGROUND
