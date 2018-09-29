@@ -29,6 +29,7 @@ RUN apt-get update && \
   wget \
   vim \
   cron \
+  imagemagick \
   && apt-get clean -y && \
   curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
   && mkdir -p /etc/apache2/ssl \
