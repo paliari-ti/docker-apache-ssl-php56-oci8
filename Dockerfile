@@ -1,70 +1,48 @@
-FROM ubuntu:16.04
+FROM php:5.6-apache
 
-LABEL Mantainer="Marcos Paliari <marcos@paliari.com.br>"
-LABEL Description="A Simple apache-sll/php5.6/oci8 image using ubuntu:14.04"
+LABEL maintainer="Marcos Paliari <marcos@paliari.com.br>"
 
-RUN apt-get update && \
-  apt-get install -y software-properties-common && \
-  LANG=C.UTF-8 add-apt-repository ppa:ondrej/php -y && \
-  apt-get update && \
-  apt-get install -y \
-  apache2 \
-  php5.6 \
-  php5.6-curl \
-  php5.6-gd \
-  php5.6-json \
-  php5.6-mbstring \
-  php5.6-mcrypt \
-  php5.6-mysql \
-  php5.6-soap \
-  php5.6-zip \
-  php5.6-xml \
-  php5.6-sqlite3 \
-  php5.6-dev \
-  unzip \
-  zip \
-  libaio-dev \
-  git \
-  curl \
-  wget \
-  vim \
-  cron \
-  imagemagick \
-  && apt-get clean -y && \
-  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+COPY start.sh /start.sh
+
+RUN apt-get update && apt-get -y install wget bsdtar libaio1 curl git zlib1g-dev libzip-dev \
+  && wget -qO- https://github.com/paliari/docker-php7-apache/raw/master/oracle/instantclient-basic-linux.x64-12.2.0.1.0.zip | bsdtar -xvf- -C /usr/local \
+  && wget -qO- https://github.com/paliari/docker-php7-apache/raw/master/oracle/instantclient-sdk-linux.x64-12.2.0.1.0.zip | bsdtar -xvf- -C /usr/local \
+  && wget -qO- https://github.com/paliari/docker-php7-apache/raw/master/oracle/instantclient-sqlplus-linux.x64-12.2.0.1.0.zip | bsdtar -xvf- -C /usr/local \
+  && ln -s /usr/local/instantclient_12_2 /usr/local/instantclient \
+  && ln -s /usr/local/instantclient/libclntsh.so.* /usr/local/instantclient/libclntsh.so \
+  && ln -s /usr/local/instantclient/lib* /usr/lib \
+  && ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus \
+  && docker-php-ext-configure oci8 --with-oci8=instantclient,/usr/local/instantclient \
+  && docker-php-ext-install oci8 \
+  && docker-php-ext-install pdo_mysql exif opcache \
+  && apt-get install -y libicu-dev libaio-dev libxml2-dev libjpeg-dev libpng-dev libfreetype6-dev \
+  && docker-php-ext-install intl soap dom \
+  && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+  && docker-php-ext-install gd \
+  && docker-php-ext-install zip \
+  && apt-get install -y imagemagick \
+  && apt-get purge -y --auto-remove \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /etc/apache2/ssl \
-  && rm -rf /var/lib/apt/lists/*
+  && mkdir -p /var/www/html/public \
+  && chmod +x /start.sh \
+  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 ADD ssl/* /etc/apache2/ssl/
-COPY templates/apache_default.conf /etc/apache2/sites-available/000-default.conf
-COPY templates/apache_default_ssl.conf /etc/apache2/sites-available/default-ssl.conf
-COPY templates/php_default.ini /etc/php/5.6/apache2/php.ini
-COPY templates/charset_apache_default.conf /etc/apache2/conf-available/charset.conf
-COPY start.sh /usr/local/bin/start.sh
-RUN sed -i "s#short_open_tag = Off#short_open_tag = On#" /etc/php/5.6/apache2/php.ini && \
-  sed -i "s#display_errors = Off#display_errors = On#" /etc/php/5.6/apache2/php.ini && \
-  sed -i "s#upload_max_filesize = 2M#upload_max_filesize = 50M#" /etc/php/5.6/apache2/php.ini && \
-  sed -i "s#post_max_size = 8M#post_max_size = 50M#" /etc/php/5.6/apache2/php.ini && \
-  sed -i "s#;date.timezone =#date.timezone = America/Sao_Paulo#" /etc/php/5.6/apache2/php.ini && \
-  chmod +x /usr/local/bin/start.sh && \
-  a2enmod ssl headers rewrite && \
-  a2ensite default-ssl && \
-  chown -R www-data:www-data /var/www/html
+COPY apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY apache/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
+COPY apache/charset.conf /etc/apache2/conf-available/charset.conf
+COPY php/vars.ini /usr/local/etc/php/conf.d/vars.ini
+COPY src/index.php /var/www/html/public/index.php
 
-RUN wget -O /tmp/instantclient.x64-12.1.0.2.0.zip https://github.com/paliari-ti/docker-apache-ssl-php56-oci8/raw/master/instantclient.x64-12.1.0.2.0.zip && \
-  unzip /tmp/instantclient.x64-12.1.0.2.0.zip -d /usr/local/ && \
-  rm -f /tmp/instantclient.x64-12.1.0.2.0.zip && \
-  ln -s /usr/local/instantclient_12_1 /usr/local/instantclient && \
-  ln -s /usr/local/instantclient/libclntsh.so.12.1 /usr/local/instantclient/libclntsh.so && \
-  ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus && \
-  echo 'instantclient,/usr/local/instantclient' | pecl install oci8-2.0.10 && \
-  echo "extension=oci8.so" > /etc/php/5.6/apache2/conf.d/30-oci8.ini && \
-  echo "extension=oci8.so" > /etc/php/5.6/cli/conf.d/30-oci8.ini
+RUN a2enmod ssl headers rewrite \
+  && a2ensite default-ssl
 
-EXPOSE 80
 EXPOSE 443
 
 WORKDIR /var/www/html
-VOLUME ["/var/www/html"]
 
-CMD ["/usr/local/bin/start.sh"]
+ENTRYPOINT ["docker-php-entrypoint"]
+
+CMD ["/start.sh"]
