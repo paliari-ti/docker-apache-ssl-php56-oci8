@@ -56,9 +56,9 @@ For SSL certificates you must mount the volumes
 Example:
 ```bash
 docker run --vlume ssl.conf:/etc/apache2/conf-available/ssl-private-you-app.conf \
-  --volue your-cert.pem:/etc/apache2/ssl/cert.pem \
-  --volue your-cert.key:/etc/apache2/ssl/cert.key \
-  --volue your-ca.pem:/etc/apache2/ssl/ca.pem \
+  --volume your-cert.pem:/etc/apache2/ssl/cert.pem \
+  --volume your-cert.key:/etc/apache2/ssl/cert.key \
+  --volume your-ca.pem:/etc/apache2/ssl/ca.pem \
   paliari/apache-ssl-php56-oci8:latest
 
 ```
