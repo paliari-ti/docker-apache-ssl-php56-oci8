@@ -16,12 +16,12 @@ if [ ! -z "$SET_PHP_INI_ENV" ]; then
     fi
 fi
 
-if [ ! -z "$TIMEZONE" ]; then
-	echo $TIMEZONE > /etc/timezone
+if [ -z "$TIMEZONE" ]; then
+	TIMEZONE=UTC
 fi
 
 # Set the desired timezone
-echo date.timezone=$(cat /etc/timezone) > /usr/local/etc/php/conf.d/timezone.ini
+echo "date.timezone=$TIMEZONE" > /usr/local/etc/php/conf.d/timezone.ini
 
 # Increase the memory_limit
 if [ ! -z "$PHP_MEM_LIMIT" ]; then
