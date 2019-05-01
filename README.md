@@ -62,3 +62,13 @@ docker run -v ssl.conf:/etc/apache2/conf-available/ssl-private-you-app.conf \
   paliari/apache-ssl-php56-oci8:latest
 
 ```
+
+## Examples
+
+[Examples](https://github.com/paliari-ti/docker-apache-ssl-php56-oci8/tree/master/examples)
+
+
+Authors
+-------
+
+-	[Marcos Paliari](http://paliari.com.br)

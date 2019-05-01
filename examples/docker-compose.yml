@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  app:
+    container_name: my_app
+    image: paliari/apache-ssl-php56-oci8
+    ports:
+      - 801:80
+      - 4431:443
+    environment:
+      DOCUMENT_ROOT: /var/www/html/app
+    volumes:
+      - ./app:/var/www/html/app
+      - ./ssl-private-app.conf:/etc/apache2/conf-available/ssl-private-app.conf
+      - ../ssl/cert.crt:/etc/apache2/ssl/cert.crt
+      - ../ssl/cert.key:/etc/apache2/ssl/cert.key
+      - ../ssl/ca.pem:/etc/apache2/ssl/ca.pem
