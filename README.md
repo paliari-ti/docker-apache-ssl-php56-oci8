@@ -28,7 +28,7 @@ sduo docker run -p 80:80 -d -e 'WEBROOT=/var/www/html/public' -e 'SET_PHP_INI_EN
 | Name | Type | Default | Info | 
 |-----|-----|-----|-----|
 | WEBROOT | string | /var/www/html | Set custom webroot |
-| PHP_MEM_LIMIT | integer | 128 | Define PHP memory limit in MB |
+| PHP_MEM_LIMIT | integer | 2048 | Define PHP memory limit in MB |
 | PHP_POST_MAX_SIZE | integer | 100 | Define PHP post max size in MB |
 | PHP_UPLOAD_MAX_FILESIZE | integer | 100 | Define PHP upload max filesize in MB |
 | TIMEZONE | string | UTC | Set custom timezone |
