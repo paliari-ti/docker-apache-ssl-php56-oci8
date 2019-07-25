@@ -34,6 +34,7 @@ COPY apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY apache/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf
 COPY apache/charset.conf /etc/apache2/conf-available/charset.conf
 COPY php/vars.ini /usr/local/etc/php/conf.d/vars.ini
+COPY php/timezone.ini /usr/local/etc/php/conf.d/timezone.ini
 COPY src/index.php /var/www/html/public/index.php
 
 RUN a2enmod ssl headers rewrite \
